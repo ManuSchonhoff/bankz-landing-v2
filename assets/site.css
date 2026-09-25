@@ -194,7 +194,7 @@ html{ scroll-padding-top:calc(var(--nav-h) + env(safe-area-inset-top, 0px)); }
 .enlace:active{ opacity:.64; transition-duration:0ms; }
 .enlace .i{ width:1.25rem; height:1.25rem; }
 .acciones{ display:flex; flex-wrap:wrap; gap:var(--e3); align-items:center; }
-@media (max-width:599px){ .acciones .btn{ width:100%; } }
+@media (max-width:599px){ .acciones .btn{ width:100%; white-space:normal; text-wrap:balance; } }   /* a ancho completo cortan línea en vez de desbordar */
 @media (hover:hover) and (pointer:fine){
   .btn--primario:hover{ background:var(--inv-hover); }
   .btn--secundario:hover{ background:var(--relleno); }
@@ -210,6 +210,7 @@ html{ scroll-padding-top:calc(var(--nav-h) + env(safe-area-inset-top, 0px)); }
 .nav__logo{ display:block; padding:16px 12px 16px 0; margin-right:auto; color:var(--nieve); }
 .nav__logo svg{ width:80px; height:24px; }
 .nav__logo{ transition:opacity var(--d-rapido) ease; }
+.nav__logo,.burger{ flex:none; }   /* con zoom alto nunca se comprimen: lo que sobra se resuelve en el menú */
 .nav__logo:active,.faq .resp a:not(.btn):active,.form-estado a:active{ opacity:.64; transition-duration:0ms; }
 .nav__links{ display:none; }
 .nav__links a{ position:relative; display:inline-flex; align-items:center; min-height:2.75rem; color:var(--g72); text-decoration:none; font-size:.9375rem; line-height:1.2; transition:color var(--d-rapido) ease, opacity var(--d-rapido) ease; }
@@ -275,7 +276,7 @@ html:not(.js) .burger{ display:none; }
   .hero__texto{ max-width:calc(40rem + 2 * var(--margen-s)); }
 }
 /* Teléfono en apaisado y escritorio con zoom 200 %: foto y texto lado a lado para que el H1 y los CTA entren en pantalla */
-@media (orientation:landscape) and (max-height:500px) and (max-width:1023px){
+@media (orientation:landscape) and (max-height:500px) and (min-width:560px) and (max-width:1023px){
   .hero > .rejilla{ display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr); column-gap:0; }
   .hero__foto{ grid-column:1; grid-row:1; }
   .hero__foto picture{ display:block; height:100%; }
@@ -308,6 +309,7 @@ html:not(.js) .burger{ display:none; }
   .cifras{ grid-template-columns:repeat(3,minmax(0,1fr)); column-gap:var(--gutter); border-bottom:var(--pelo) solid var(--linea); }
   .cifra{ border-bottom:0; padding-block:var(--e6); gap:var(--e4); }
   .cifra + .cifra{ border-left:var(--pelo) solid var(--linea); padding-left:var(--gutter); }
+  .cifra:first-child{ padding-right:calc(var(--gutter) + var(--pelo)); }   /* mismo ancho de contenido en las 3: el cqi da una sola escala por fila */
 }
 .detras{ margin-top:var(--e6); padding:var(--e5); border:var(--pelo) solid var(--linea-fuerte); border-radius:var(--r); display:grid; gap:var(--e2); max-width:36rem; }
 
@@ -327,7 +329,8 @@ html:not(.js) .burger{ display:none; }
 .diagrama[data-activa="1"] .n1,.diagrama[data-activa="2"] .n2,.diagrama[data-activa="3"] .n3,.diagrama[data-activa="4"] .n4{ fill:var(--texto); }
 .capa{ display:grid; grid-template-columns:1.5rem 1fr; gap:var(--e2) var(--e4); align-content:start; padding-block:var(--e5); border-top:var(--pelo) solid var(--linea); }
 .capa:last-child{ border-bottom:var(--pelo) solid var(--linea); }
-.capa .num{ grid-row:span 2; font-weight:500; color:var(--texto-3); font-size:var(--fs-chico); line-height:1.25; padding-top:.3em; }
+.capa .num{ grid-row:1; align-self:baseline; font-weight:500; color:var(--texto-3); font-size:var(--fs-chico); line-height:1.25; }
+.capa .t-h3{ align-self:baseline; }   /* el índice comparte línea base con su título, en cualquier tamaño */
 .capa p{ color:var(--texto-2); grid-column:2; }
 @media (min-width:1024px){
   .capas{ grid-template-columns:repeat(12,minmax(0,1fr)); column-gap:var(--gutter); align-items:start; }
@@ -404,7 +407,9 @@ html:not(.js) .tarjeta__detalle{ position:static; aspect-ratio:auto; opacity:1; 
 .col-caja:active .frente{ transform:scale(.97); transition-duration:var(--d-rapido),var(--d-press); }
 .col-caja .rot{ position:absolute; top:calc(100% + var(--e2)); white-space:nowrap; font-size:var(--fs-legal); font-weight:500; line-height:1.2; color:var(--texto-2); font-variant-numeric:tabular-nums; }
 .tabla-cajas{ border-top:var(--pelo) solid var(--linea); container-type:inline-size; }
-.fila-caja{ display:grid; grid-template-columns:1fr auto 1.25rem; align-items:center; gap:var(--e3); min-height:4rem; padding-inline:var(--e3); border-bottom:var(--pelo) solid var(--linea); cursor:pointer; transition:background-color var(--d-rapido) ease, color var(--d-rapido) ease; }
+.fila-caja{ position:relative; display:grid; grid-template-columns:1fr auto 1.25rem; align-items:center; gap:var(--e3); min-height:4rem; padding-inline:var(--e3); border-bottom:var(--pelo) solid var(--linea); cursor:pointer; transition:background-color var(--d-rapido) ease, color var(--d-rapido) ease; }
+/* El radio vive dentro de su fila y ocupa su caja (recortado, invisible): al enfocarlo con teclado, el navegador trae la fila entera a la vista */
+.fila-caja > input.sr-only{ top:0; left:0; width:100%; height:100%; margin:0; }
 .fila-caja__id{ display:grid; gap:2px; }
 .fila-caja__id b{ font-weight:500; font-variant-numeric:tabular-nums; line-height:1.25; }
 .fila-caja__id span{ font-size:var(--fs-legal); color:var(--texto-2); line-height:1.3; }
@@ -469,6 +474,7 @@ html:not(.js) .tarjeta__detalle{ position:static; aspect-ratio:auto; opacity:1; 
   .plazos{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); border-bottom:var(--pelo) solid var(--linea); }
   .plazo{ container-type:inline-size; flex-direction:column; justify-content:flex-start; gap:var(--e3); padding:var(--e6) var(--gutter) var(--e6) 0; border-bottom:0; min-height:11rem; }
   .plazo + .plazo{ border-left:var(--pelo) solid var(--linea); padding-left:var(--gutter); }
+  .plazo:first-child{ padding-right:calc(2 * var(--gutter) + var(--pelo)); }   /* mismo ancho de contenido en las 5: un solo tamaño por fila */
   .plazo .t-figura-2{ font-size:min(var(--fs-figura-2), 19cqi); }
   .plazo .t-chico{ justify-content:flex-start; text-align:left; }
 }
@@ -487,7 +493,8 @@ html:not(.js) .tarjeta__detalle{ position:static; aspect-ratio:auto; opacity:1; 
 .pasos{ display:grid; }
 .paso{ display:grid; grid-template-columns:3.5rem 1fr; gap:var(--e2) var(--e4); align-content:start; padding-block:var(--e5); border-top:var(--pelo) solid var(--linea); }
 .paso:last-child{ border-bottom:var(--pelo) solid var(--linea); }
-.paso .t-figura-2{ grid-row:span 2; color:var(--texto-3); font-size:1.5rem; line-height:1.25; }
+.paso .t-figura-2{ grid-row:1; align-self:baseline; color:var(--texto-3); font-size:1.5rem; line-height:1.25; }
+.paso .t-h3{ align-self:baseline; }
 .paso p{ color:var(--texto-2); grid-column:2; }
 .pasos__nota{ margin-top:var(--e5); color:var(--texto-3); font-size:var(--fs-legal); line-height:1.55; max-width:68ch; }
 .pasos__acciones{ margin-top:var(--e6); }
@@ -495,7 +502,8 @@ html:not(.js) .tarjeta__detalle{ position:static; aspect-ratio:auto; opacity:1; 
   .pasos{ grid-template-columns:repeat(4,minmax(0,1fr)); column-gap:var(--gutter); }
   .paso{ grid-template-columns:1fr; padding-block:var(--e5) 0; }
   .paso:last-child{ border-bottom:0; }
-  .paso .t-figura-2{ grid-row:auto; font-size:var(--fs-figura-2); line-height:1; margin-bottom:var(--e4); }
+  .paso .t-figura-2{ grid-row:auto; align-self:auto; font-size:var(--fs-figura-2); line-height:1; margin-bottom:var(--e4); }
+  .paso .t-h3{ align-self:auto; }
   .paso p{ grid-column:1; }
   .pasos__nota{ margin-top:var(--e7); }
 }
@@ -622,13 +630,14 @@ html:not(.js) .tarjeta__detalle{ position:static; aspect-ratio:auto; opacity:1; 
 @media (max-width:379px){ .dock .btn{ font-size:.875rem; padding:0 10px; } }
 @media (max-width:340px){ .dock .btn{ font-size:.8125rem; padding:0 8px; } }
 @media (min-width:768px){ .dock{ display:none; } }
-/* Teléfono en apaisado: el dock se come el alto útil; las dos acciones pasan a la nav */
+/* Teléfono en apaisado: el dock se come el alto útil; las dos acciones pasan a la nav.
+   Por debajo de 560 px (reflow al 300-400 %) no entran en la nav: quedan en el menú y en cada sección. */
 @media (orientation:landscape) and (max-height:500px) and (max-width:767px){
   .dock{ display:none; }
   body{ padding-bottom:0; }
   html{ scroll-padding-bottom:0; }
-  .nav__ctas{ display:flex; }
 }
+@media (orientation:landscape) and (max-height:500px) and (min-width:560px) and (max-width:767px){ .nav__ctas{ display:flex; } }
 
 /* ---------- Hoja de reserva (dialog) ---------- */
 .hoja{ padding:0; border:0; max-width:none; max-height:none; display:flex; flex-direction:column; background:var(--bg); color:var(--texto); overflow:hidden; }
@@ -674,6 +683,18 @@ html:not(.js) .tarjeta__detalle{ position:static; aspect-ratio:auto; opacity:1; 
   .hoja__head{ padding-block:4px; }
   .hoja form{ margin-top:var(--e2); }
 }
+/* Alto útil mínimo (teclado abierto con el teléfono apaisado, zoom 300-400 %): scrollea la hoja entera y el pie deja de estar fijo,
+   para que el campo que se escribe y su rótulo se vean. .compacta la pone el JS con el viewport visible (iOS no achica el layout). */
+@media (max-height:300px){
+  .hoja{ overflow-y:auto; overscroll-behavior:contain; scroll-padding-top:3.5rem; }
+  .hoja__body{ flex:none; overflow:visible; }
+  .hoja__agarre{ display:none; }
+  .hoja__head{ position:sticky; top:0; z-index:1; background:var(--bg); }
+}
+.hoja.compacta{ overflow-y:auto; overscroll-behavior:contain; scroll-padding-top:3.5rem; }
+.hoja.compacta .hoja__body{ flex:none; overflow:visible; }
+.hoja.compacta .hoja__agarre{ display:none; }
+.hoja.compacta .hoja__head{ position:sticky; top:0; z-index:1; background:var(--bg); }
 /* Opciones (8 radios name="caja") y resumen plegado: una sola fila de la grilla del form (sin gap doble al plegar) */
 .opciones-wrap{ display:grid; grid-template-rows:1fr; opacity:1; visibility:visible; transition:grid-template-rows var(--d-mov) var(--ease-out), opacity var(--d-ui) ease, visibility 0s; }
 .opciones-wrap.plegado{ grid-template-rows:0fr; opacity:0; visibility:hidden; transition:grid-template-rows var(--d-mov) var(--ease-out), opacity 150ms ease, visibility 0s linear var(--d-mov); }
@@ -726,6 +747,9 @@ html:not(.js) .tarjeta__detalle{ position:static; aspect-ratio:auto; opacity:1; 
 /* ============ MOVIMIENTO (DESIGN-SPEC §6) ============ */
 .js .reveal{ opacity:0; transform:translateY(8px); transition:opacity var(--d-reveal) var(--ease-out), transform var(--d-reveal) var(--ease-out); transition-delay:calc(var(--i, 0) * var(--stagger)); }
 .js .reveal.in{ opacity:1; transform:none; }
+/* Reveal solo en el eje del scroll vertical: dentro del carrusel (< 1024) escondería la tarjeta que asoma, que es la señal de que hay más.
+   El encabezado de la sección ya da la entrada; el stagger de tarjetas queda para la grilla de 3 (≥ 1024). */
+@media (max-width:1023px){ .js .espacio > .tarjeta.reveal{ opacity:1; transform:none; transition:none; } }
 :is(.cifras,.espacio,.plazos,.pasos,.statement__in,.filas-contacto) > :nth-child(2){ --i:1; }
 :is(.cifras,.espacio,.plazos,.pasos,.statement__in,.filas-contacto) > :nth-child(3){ --i:2; }
 :is(.plazos,.pasos) > :nth-child(4){ --i:3; }
