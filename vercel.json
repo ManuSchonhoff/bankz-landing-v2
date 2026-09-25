@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "headers": [
+    { "source": "/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] }
+  ],
   "rewrites": [
     { "source": "/privacidad", "destination": "/privacidad.html" }
   ],
