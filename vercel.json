@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/privacidad", "destination": "/privacidad.html" }
+  ],
+  "redirects": [
+    { "source": "/:path(.*)", "has": [{ "type": "host", "value": "bankz.com.ar" }], "destination": "https://www.bankz.ar/:path", "statusCode": 301 },
+    { "source": "/:path(.*)", "has": [{ "type": "host", "value": "www.bankz.com.ar" }], "destination": "https://www.bankz.ar/:path", "statusCode": 301 },
+    { "source": "/:path(.*)", "has": [{ "type": "host", "value": "bankzoficial.com" }], "destination": "https://www.bankz.ar/:path", "statusCode": 301 },
+    { "source": "/:path(.*)", "has": [{ "type": "host", "value": "www.bankzoficial.com" }], "destination": "https://www.bankz.ar/:path", "statusCode": 301 }
+  ]
+}
