@@ -1,0 +1,4 @@
+node_modules
+out/loop
+out/review
+out/*.log

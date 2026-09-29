@@ -1,0 +1,22 @@
+{
+  "name": "bankz-motion",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "render:16x9": "remotion render Bankz16x9 out/bankz-16x9.mp4",
+    "render:9x16": "remotion render Bankz9x16 out/bankz-9x16.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.530",
+    "@remotion/layout-utils": "^4.0.530",
+    "@remotion/motion-blur": "^4.0.530",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.530"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}
