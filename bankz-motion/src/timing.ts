@@ -40,3 +40,29 @@ export const MOTION_BLUR: [number, number][] = [
   [576, 590],
   [792, 806],
 ];
+
+// ---------- Corte de 12 s (seccion 13 del brief): 30 beats = 720 frames ----------
+export type Cut = '16' | '12';
+export const DURATION_12 = 720;
+
+// B19 (f432): inversion a negro + CTA. B19½: prefijo y cursor.
+// B20-B21: tecleo del numero, del primer caracter en f456 al ultimo en f503
+// (12 caracteres en 2 beats: ~14 car/s).
+export const WA12 = {appear: 444, t0: 456, cps: (11 * FPS) / 47, end: 503, gone: 539};
+export const WA16 = {appear: 648, t0: WA_T0, cps: WA_CPS, end: 708, gone: 744};
+
+// Cierre en 6 beats (B25-B30): el Acto 5 del corte largo remapeado.
+// B25-B28 1:1 (f576-661 -> f792-877), placa final estirada en un beat menos
+// (f662-695 -> f878-935) y B30 1:1 (f696-719 -> f936-959). f719 = f959 = f0.
+export const toLong = (f: number) => {
+  if (f < 662) return f + 216;
+  if (f < 696) return 878 + ((f - 662) * 58) / 34;
+  return f + 240;
+};
+
+export const MOTION_BLUR_12: [number, number][] = [
+  [241, 248],
+  [264, 278],
+  [336, 350],
+  [576, 590],
+];

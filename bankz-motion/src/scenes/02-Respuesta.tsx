@@ -1,5 +1,5 @@
 import React from 'react';
-import {useCurrentFrame} from 'remotion';
+import {useFrame} from '../frame';
 import {eBack, eBackSoft, enter, eOut, exit, prog, pulse} from '../anim';
 import {Aro} from '../components/Aro';
 import {Outline} from '../components/BoxFace';
@@ -23,7 +23,7 @@ const sweepIn = (f: number, start: number, L: Layout, dir: 1 | -1, dist: number)
 
 // Acto 2 (B11-B18, f240-431): el Aro cierra la boveda, titulo, subtitulo y chips.
 export const Respuesta: React.FC<{L: Layout; G: Geom}> = ({L, G}) => {
-  const f = useCurrentFrame();
+  const f = useFrame();
   if (f < 240 || f >= 440) return null;
   const {ink} = themeAt(f);
   const a2 = G.a2;

@@ -1,5 +1,5 @@
 import React from 'react';
-import {useCurrentFrame} from 'remotion';
+import {useFrame} from '../frame';
 import {eInOut, eOut, exit, lerp, prog} from '../anim';
 import {QMark} from '../components/Aro';
 import {Txt} from '../components/Txt';
@@ -58,7 +58,7 @@ export const closingGeom = (L: Layout, G: Geom) => {
 
 // Acto 5 (B34-B40, f792-959).
 export const Cierre: React.FC<{L: Layout; G: Geom}> = ({L, G}) => {
-  const f = useCurrentFrame();
+  const f = useFrame();
   if (f < 792) return null;
   const {ink} = themeAt(f);
   const C = closingGeom(L, G);

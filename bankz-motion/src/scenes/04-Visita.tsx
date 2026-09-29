@@ -1,5 +1,6 @@
 import React from 'react';
-import {interpolate, useCurrentFrame} from 'remotion';
+import {useFrame} from '../frame';
+import {interpolate} from 'remotion';
 import {eInOut, enter, eOut, exit, lerp, prog, pulse} from '../anim';
 import {Caret, Txt} from '../components/Txt';
 import {Geom, waCaret} from '../geom';
@@ -14,7 +15,7 @@ export const wheelPos = (f: number) => 4 - 7 * (1 - eOut(prog(f, 576, 24)));
 
 // Acto 4 (B25-B33, f576-791): rueda de plazos, "Plan anual.", CTA, WhatsApp, web e Instagram.
 export const Visita: React.FC<{L: Layout; G: Geom}> = ({L, G}) => {
-  const f = useCurrentFrame();
+  const f = useFrame();
   if (f < 576 || f >= 808) return null;
   const {ink} = themeAt(f);
   const a4 = G.a4;

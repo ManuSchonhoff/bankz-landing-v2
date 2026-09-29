@@ -2,7 +2,7 @@ import {blinkOn} from './components/Txt';
 import {eBack, eInOut, lerp, prog} from './anim';
 import {act2Geom, act4Geom, chipRects, getLayout, Layout, questionGeom, rowGeom, WA_NUMBER, WA_PREFIX, Aspect} from './layout';
 import {fit, measure} from './text';
-import {Q_CHARS, Q_CPS, Q_T0, typedCount, WA_CHARS, WA_CPS, WA_T0} from './timing';
+import {Q_CHARS, Q_CPS, Q_T0, typedCount, WA16, WA_CHARS} from './timing';
 
 const build = (L: Layout) => {
   const S = fit(WA_PREFIX + WA_NUMBER, L.size.contact, 400, L.maxLine);
@@ -49,12 +49,12 @@ export const questionCaret = (f: number, L: Layout, G: Geom) => {
   return {x, y: line.y, n, S, scaleY, visible};
 };
 
-// Cursor del Acto 4 (numero de WhatsApp).
-export const waCaret = (f: number, G: Geom) => {
+// Cursor del numero de WhatsApp (Acto 4 del corte largo, B19-B21 del corte de 12 s).
+export const waCaret = (f: number, G: Geom, t: typeof WA16 = WA16) => {
   const {S, numLeft, y} = G.wa;
-  const n = typedCount(f, WA_T0, WA_CPS, WA_CHARS);
+  const n = typedCount(f, t.t0, t.cps, WA_CHARS);
   const x = numLeft + (n > 0 ? measure(WA_NUMBER.slice(0, n), S, 400) + 0.04 * S : 0);
-  // Solido mientras teclea; al terminar (f708) parpadea una vez y desaparece en f744.
-  const visible = f >= 648 && f < 744 && (f < 708 || blinkOn(f, 708));
+  // Solido mientras teclea; al terminar parpadea una vez y desaparece.
+  const visible = f >= t.appear && f < t.gone && (f < t.end || blinkOn(f, t.end));
   return {x, y, n, S, visible};
 };

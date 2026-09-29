@@ -1,5 +1,5 @@
 import React from 'react';
-import {useCurrentFrame} from 'remotion';
+import {useFrame} from '../frame';
 import {eBack, eInOut, enter, eOut, exit, lerp, prog, pulse} from '../anim';
 import {BoxFace, Outline} from '../components/BoxFace';
 import {Txt} from '../components/Txt';
@@ -11,7 +11,7 @@ const SWITCH = [444, 456, 468, 480]; // BKZ 2, 3, 4, 5
 
 // Acto 3 (B19-B24, f432-575): los chips colapsan en la cara de la BKZ 1 y la cara recorre los cinco tamaños.
 export const Tamanos: React.FC<{L: Layout; G: Geom}> = ({L, G}) => {
-  const f = useCurrentFrame();
+  const f = useFrame();
   if (f < 432 || f >= 592) return null;
   const {ink} = themeAt(f);
   const els: React.ReactNode[] = [];

@@ -20,6 +20,25 @@ node scripts/stills.mjs Bankz16x9 240,432,864   # stills de revisión en out/rev
 
 Fuera de este contenedor se puede omitir `--browser-executable`. En ese caso Remotion descarga su propio Chrome.
 
+## Corte de 12 s (sección 13 del brief)
+
+Composiciones `Bankz12s16x9` y `Bankz12s9x16`: 720 frames, 30 beats.
+
+```bash
+npx remotion render Bankz12s16x9 out/bankz-12s-16x9.mp4 --codec=h264 --crf=15 --pixel-format=yuv420p --concurrency=4 --browser-executable=$REMOTION_CHROME
+npx remotion render Bankz12s9x16 out/bankz-12s-9x16.mp4 --codec=h264 --crf=15 --pixel-format=yuv420p --concurrency=4 --browser-executable=$REMOTION_CHROME
+```
+
+- **B1–B18:** iguales al corte largo. El Acto 3 y la rueda se eliminan.
+- **B19 (f432):** inversión a negro y se clava "Agendá tu visita.". Los chips salen de borroso.
+- **B19½:** aparecen el prefijo "WhatsApp" y el cursor.
+- **B20–B21:** tecleo del número, del primer carácter en f456 al último en f503. Son 12 caracteres en 2 beats, así que va a unos 14 car/s en lugar de 12.
+- **B22:** entra "bankz.ar".
+- **B23:** entra "@bankzarg".
+- **B24:** el bloque late.
+- **B25–B30:** el cierre del Acto 5 remapeado (`toLong` en `timing.ts`). B25–B28 van 1:1, la placa final dura un beat menos y B30 va 1:1. El loop se cumple: f719 = f0.
+- **Audio:** `beat-150-12s.wav` tiene la misma estructura, con el cuerpo hasta B29 y el golpe final en B28. En f432 no se suma el hit: el impacto grave ya marca la inversión y evita que el audio sature.
+
 ## Estructura
 
 | Archivo | Qué hace |
@@ -29,7 +48,8 @@ Fuera de este contenedor se puede omitir `--browser-executable`. En ese caso Rem
 | `src/layout.ts` | Tamaños, zonas seguras y geometría compartida por formato |
 | `src/Camera.tsx` | Zoom por keyframes, golpes, paneos, deriva continua y seguimiento del caret (4 f de retraso) |
 | `src/components/` | `Txt` y `Caret`, `Aro` y `QMark` (trazo SVG del "?"), `BoxFace`, `Brand`, `MotionBlur` |
-| `src/scenes/` | Los 5 actos del guion |
+| `src/scenes/` | Los 5 actos del guion. `04b-VisitaCorta` es el bloque de CTA del corte de 12 s |
+| `src/frame.ts` | `useFrame()`: frame actual con remapeo opcional (cierre del corte de 12 s) |
 | `src/Sfx.tsx` | Pista y SFX. Los clicks salen de la misma tabla de tecleo que el video |
 | `public/brand/` | Logotipo horizontal e isotipo oficiales en negro y blanco. Son los mismos trazados que usa bankz.ar |
 | `public/fonts/` | Alexandria variable (la de bankz.ar), servida local |

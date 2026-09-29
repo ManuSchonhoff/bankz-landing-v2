@@ -91,9 +91,10 @@ def add(buf, at, sig):
         buf[i:j] += sig[: j - i]
 
 
-def make_bed():
-    y = np.zeros(t_of(DUR))
-    beats = 40
+def make_bed(beats=40):
+    # beats=40: corte de 16 s. beats=30: corte de 12 s (cuerpo hasta B29, golpe final en B28).
+    dur = beats * SPB
+    y = np.zeros(t_of(dur))
     # Intro B1-B4
     for b in range(0, 4):
         add(y, b * SPB, kick(0.75))
@@ -103,7 +104,7 @@ def make_bed():
             add(y, b * SPB + 3 * SPB / 4, hat(0.05))
     # Cuerpo B11-B39 (b = 10..38)
     notes = [55.0, 55.0, 55.0, 55.0, 55.0, 55.0, 55.0, 55.0, 43.65, 43.65, 43.65, 43.65, 49.0, 49.0, 49.0, 49.0]
-    for b in range(10, 39):
+    for b in range(10, beats - 1):
         rel = b - 10
         add(y, b * SPB, kick(0.95 if rel % 4 == 0 else 0.85))
         if rel % 4 in (1, 3):
@@ -119,7 +120,7 @@ def make_bed():
     k = np.arange(n) / SR
     tail = lowpass(rng.standard_normal(n), 0.08) * np.exp(-k * 3.2) * 0.9
     tail += np.sin(2 * np.pi * 55 * k) * np.exp(-k * 2.6) * 0.5
-    add(y, 36 * SPB, np.tanh(tail))
+    add(y, (beats - 4) * SPB, np.tanh(tail))
     # Corte total en B5 (f96) en 2 frames y vuelta en el drop (f240)
     t = np.arange(len(y)) / SR
     g = np.ones_like(y)
@@ -128,7 +129,7 @@ def make_bed():
     g = np.where(t >= cut, np.clip(1 - (t - cut) / ramp, 0, 1), g)
     g = np.where(t >= back, 1.0, g)
     # Cola: muere durante B40 y silencio en los ultimos 6 frames
-    fade0, fade1 = 936 / FPS, 954 / FPS
+    fade0, fade1 = (beats - 1) * SPB, (beats - 1) * SPB + 18 / FPS
     g = g * np.where(t >= fade0, np.clip(1 - (t - fade0) / (fade1 - fade0), 0, 1) ** 2, 1)
     y = y * g
     return y
@@ -227,7 +228,7 @@ def placeholder():
 
 if __name__ == '__main__':
     os.makedirs(OUT, exist_ok=True)
-    write('beat-150.wav', make_bed(), peak=0.8)
+    write('beat-150.wav', make_bed(40), peak=0.8)
     write('beat-150-placeholder.wav', placeholder(), peak=0.8)
     write('key-1.wav', key(1, 210))
     write('key-2.wav', key(2, 260))
@@ -236,3 +237,5 @@ if __name__ == '__main__':
     write('thud.wav', thud())
     write('tick.wav', tick())
     write('hit.wav', hit())
+    # Al final, para no alterar el ruido (seed fija) de los archivos anteriores.
+    write('beat-150-12s.wav', make_bed(30), peak=0.8)

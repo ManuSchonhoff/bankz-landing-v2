@@ -1,5 +1,6 @@
 import React from 'react';
-import {interpolate, useCurrentFrame} from 'remotion';
+import {useFrame} from '../frame';
+import {interpolate} from 'remotion';
 import {blurCss, eBack, eIn, eInOut, eOut, lerp, prog} from '../anim';
 import {Aro, QMark} from '../components/Aro';
 import {Caret, Txt} from '../components/Txt';
@@ -12,7 +13,7 @@ const PITCH = 48;
 
 // Acto 1 (B1-B10, f0-239): punto -> linea -> grilla -> cursor -> "¿Estás seguro?" -> Aro.
 export const Pregunta: React.FC<{L: Layout; G: Geom}> = ({L, G}) => {
-  const f = useCurrentFrame();
+  const f = useFrame();
   if (f >= 240) return null;
   const th = themeAt(f);
   const vertical = L.aspect === '9x16';

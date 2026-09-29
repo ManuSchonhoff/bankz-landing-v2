@@ -3,6 +3,7 @@ import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {punch, smooth, track} from './anim';
 import {Geom, questionCaret, waCaret} from './geom';
 import {Layout} from './layout';
+import {Cut, toLong, WA12} from './timing';
 
 const SCALE: [number, number][] = [
   [0, 1],
@@ -108,7 +109,7 @@ const PAN_Y: Record<string, [number, number][]> = {
   ],
 };
 
-export const cameraAt = (f: number, L: Layout, G: Geom) => {
+export const cameraLong = (f: number, L: Layout, G: Geom) => {
   let s = track(f, SCALE);
   for (const [at, from, dur] of PUNCHES) s *= punch(f, at, from, dur);
   let tx = track(f, PAN_X[L.aspect]) * L.W;
@@ -132,9 +133,37 @@ export const cameraAt = (f: number, L: Layout, G: Geom) => {
   return {s, tx, ty};
 };
 
-export const CameraLayer: React.FC<{L: Layout; G: Geom; children: React.ReactNode}> = ({L, G, children}) => {
+// Corte de 12 s, B19-B24 (f432-575): CTA + WhatsApp + web + Instagram.
+const SCALE_12: [number, number][] = [
+  [432, 1],
+  [456, 1.02],
+  [504, 1.03],
+  [528, 1.04],
+  [552, 1.04],
+  [576, 1.05],
+];
+
+const cameraCta12 = (f: number, L: Layout, G: Geom) => {
+  const s = track(f, SCALE_12) * punch(f, 432, 1.08, 6);
+  let tx = L.W * 0.005 * Math.sin((2 * Math.PI * f) / 400) + track(f, [[504, 0], [552, -0.008], [576, 0]]) * L.W;
+  const ty = L.H * 0.004 * Math.sin((2 * Math.PI * f) / 300 + 1.3);
+  const w = smooth(f, 444, 452) * (1 - smooth(f, 508, 532));
+  if (w > 0) {
+    const c = waCaret(f - 4, G, WA12);
+    tx -= (c.x - L.cx) * 0.25 * w;
+  }
+  return {s, tx, ty};
+};
+
+export const cameraAt = (f: number, L: Layout, G: Geom, cut: Cut = '16') => {
+  if (cut === '16' || f < 432) return cameraLong(f, L, G);
+  if (f < 576) return cameraCta12(f, L, G);
+  return cameraLong(toLong(f), L, G);
+};
+
+export const CameraLayer: React.FC<{L: Layout; G: Geom; cut?: Cut; children: React.ReactNode}> = ({L, G, cut = '16', children}) => {
   const f = useCurrentFrame();
-  const {s, tx, ty} = cameraAt(f, L, G);
+  const {s, tx, ty} = cameraAt(f, L, G, cut);
   return (
     <AbsoluteFill
       style={{
