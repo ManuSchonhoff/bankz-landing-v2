@@ -9,6 +9,6 @@ const serveUrl = await bundle({entryPoint: path.resolve('src/index.ts')});
 const composition = await selectComposition({serveUrl, id: comp, browserExecutable});
 for (const f of frames.split(',').map(Number)) {
   const output = path.resolve(outDir, `${comp}-${String(f).padStart(3, '0')}.png`);
-  await renderStill({composition, serveUrl, output, frame: f, browserExecutable, overwrite: true});
+  await renderStill({composition, serveUrl, output, frame: f, browserExecutable, overwrite: true, chromiumOptions: {gl: process.env.REMOTION_GL || 'swangle'}});
   console.log(output);
 }

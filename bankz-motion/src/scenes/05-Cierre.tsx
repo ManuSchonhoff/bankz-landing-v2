@@ -1,6 +1,6 @@
 import React from 'react';
 import {useFrame} from '../frame';
-import {eInOut, eOut, exit, lerp, prog} from '../anim';
+import {eBack, eInOut, eOut, exit, lerp, prog} from '../anim';
 import {QMark} from '../components/Aro';
 import {Txt} from '../components/Txt';
 import {Geom} from '../geom';
@@ -56,27 +56,35 @@ export const closingGeom = (L: Layout, G: Geom) => {
   };
 };
 
+// Tiempos del cierre. v1: B34-B40 (f792-959). v2 los desplaza (ver src/v2).
+export type CierreTiming = {tIn: number; tInv: number; tHook: number; tRecenter: number; tGlyph: number; tPlaca: number; tFade: number; entry: 'lateral' | 'depth'};
+export const CIERRE_V1: CierreTiming = {tIn: 792, tInv: 816, tHook: 820, tRecenter: 822, tGlyph: 840, tPlaca: 864, tFade: 936, entry: 'lateral'};
+
 // Acto 5 (B34-B40, f792-959).
-export const Cierre: React.FC<{L: Layout; G: Geom}> = ({L, G}) => {
-  const f = useFrame();
-  if (f < 792) return null;
+export const Cierre: React.FC<{L: Layout; G: Geom; T?: CierreTiming; frame?: number}> = ({L, G, T = CIERRE_V1, frame}) => {
+  const hookFrame = useFrame();
+  const f = frame ?? hookFrame;
+  if (f < T.tIn) return null;
   const {ink} = themeAt(f);
   const C = closingGeom(L, G);
   const S = C.S;
 
   // B34: vuelve al centro, de blur a nitido, opacidad 30 -> 100 %.
-  const pIn = prog(f, 792, 12);
-  const inDx = L.aspect === '16x9' ? 0.35 * L.W * (1 - eOut(pIn)) : 0;
-  const inDy = L.aspect === '9x16' ? 0.3 * L.H * (1 - eOut(pIn)) : 0;
-  const inBlur = 14 * (1 - eOut(prog(f, 792, 10)));
-  const inOp = lerp(0.3, 1, eOut(prog(f, 792, 10)));
+  const pIn = prog(f, T.tIn, 12);
+  const lateral = T.entry === 'lateral';
+  const inDx = lateral && L.aspect === '16x9' ? 0.35 * L.W * (1 - eOut(pIn)) : 0;
+  const inDy = lateral && L.aspect === '9x16' ? 0.3 * L.H * (1 - eOut(pIn)) : 0;
+  // v2: llega desde el fondo por el eje del vuelo y frena en el centro.
+  const inScale = lateral ? 1 : lerp(0.25, 1, eBack(pIn));
+  const inBlur = 14 * (1 - eOut(prog(f, T.tIn, 10)));
+  const inOp = lerp(0.3, 1, eOut(prog(f, T.tIn, 10)));
 
   // B35: se re-centra al quitar el "¿".
-  const m = eInOut(prog(f, 822, 14));
+  const m = eInOut(prog(f, T.tRecenter, 14));
   // B37: baja y se achica a la placa final.
-  const m2 = eInOut(prog(f, 864, 14));
+  const m2 = eInOut(prog(f, T.tPlaca, 14));
   // B40: todo se funde salvo el punto final.
-  const fadeAll = 1 - eInOut(prog(f, 936, 12));
+  const fadeAll = 1 - eInOut(prog(f, T.tFade, 12));
 
   const qDot0 = {x: C.q0.left + (GLYPH.qDot.x / 1000) * S, y: C.q0.y + BASE_K * S - (GLYPH.qDot.y / 1000) * S};
   const pDot1 = {x: C.dot1.left + (GLYPH.periodDot.x / 1000) * S, y: C.dot1.y + BASE_K * S - (GLYPH.periodDot.y / 1000) * S};
@@ -97,22 +105,22 @@ export const Cierre: React.FC<{L: Layout; G: Geom}> = ({L, G}) => {
         {part.text}
       </Txt>,
     ];
-    if (g.hasDot && f < 936) {
-      if (f < 818) {
+    if (g.hasDot && f < T.tFade) {
+      if (f < T.tInv + 2) {
         // Glifo "?" y su paso a trazo en 4 f de blur.
-        const b = 8 * Math.sin(Math.PI * prog(f, 816, 4));
+        const b = 8 * Math.sin(Math.PI * prog(f, T.tInv, 4));
         children.push(
           <Txt key="q" x={C.q0.left} y={C.q0.y} size={S} color={ink} align="left" blur={b}>
             ?
           </Txt>,
         );
-      } else if (f < 842) {
+      } else if (f < T.tGlyph + 2) {
         // El gancho se retrae hacia el punto (12 f) mientras el punto viaja a su lugar de "."
-        const b = f < 820 ? 8 * Math.sin(Math.PI * prog(f, 816, 4)) : 6 * Math.sin(Math.PI * prog(f, 840, 4));
-        children.push(<QMark key="q" W={L.W} H={L.H} dotX={dot.x} dotY={dot.y} size={S} color={ink} mode="toDot" p={eInOut(prog(f, 820, 12))} blur={b} />);
+        const b = f < T.tInv + 4 ? 8 * Math.sin(Math.PI * prog(f, T.tInv, 4)) : 6 * Math.sin(Math.PI * prog(f, T.tGlyph, 4));
+        children.push(<QMark key="q" W={L.W} H={L.H} dotX={dot.x} dotY={dot.y} size={S} color={ink} mode="toDot" p={eInOut(prog(f, T.tHook, 12))} blur={b} />);
       } else {
         // B36: el punto vuelve a ser glifo de fuente.
-        const b = 6 * Math.sin(Math.PI * prog(f, 840, 4));
+        const b = 6 * Math.sin(Math.PI * prog(f, T.tGlyph, 4));
         children.push(
           <Txt key="p" x={dot.x - (GLYPH.periodDot.x / 1000) * S} y={dot.y + (GLYPH.periodDot.y / 1000) * S - BASE_K * S} size={S} color={ink} align="left" blur={b}>
             .
@@ -129,9 +137,9 @@ export const Cierre: React.FC<{L: Layout; G: Geom}> = ({L, G}) => {
   });
 
   // "¿" se disuelve hacia arriba (B35).
-  const invX = exit(f, 816, 6, 12);
+  const invX = exit(f, T.tInv, 6, 12);
   const inv =
-    f < 822 ? (
+    f < T.tInv + 6 ? (
       <Txt key="inv" x={C.inv.left} y={C.inv.y} size={S} color={ink} align="left" opacity={invX.opacity} blur={invX.blur} dy={-0.25 * S * invX.e}>
         ¿
       </Txt>
@@ -139,13 +147,13 @@ export const Cierre: React.FC<{L: Layout; G: Geom}> = ({L, G}) => {
 
   // B40: el punto final se centra y se reduce al punto de 4 px de B1 (loop).
   let finalDot: React.ReactNode = null;
-  if (f >= 936) {
+  if (f >= T.tFade) {
     const g = C.groups[C.groups.length - 1];
     const t = groupTransform(g);
     const px = g.origin.x + (dot.x - g.origin.x) * t.sc + t.tx;
     const py = g.origin.y + (dot.y - g.origin.y) * t.sc + t.ty;
     const r0 = (GLYPH.periodDot.r / 1000) * S * t.sc;
-    const k = eInOut(prog(f, 936, 18));
+    const k = eInOut(prog(f, T.tFade, 18));
     const r = lerp(r0, 2, k);
     finalDot = (
       <div
@@ -157,7 +165,7 @@ export const Cierre: React.FC<{L: Layout; G: Geom}> = ({L, G}) => {
 
   return (
     <>
-      <div style={{position: 'absolute', inset: 0, transform: `translate(${inDx}px, ${inDy}px)`, filter: inBlur > 0.05 ? `blur(${inBlur}px)` : undefined, opacity: inOp}}>
+      <div style={{position: 'absolute', inset: 0, transform: `translate(${inDx}px, ${inDy}px) scale(${inScale})`, transformOrigin: `${L.cx}px ${L.cy}px`, filter: inBlur > 0.05 ? `blur(${inBlur}px)` : undefined, opacity: inOp}}>
         {inv}
         {groups}
       </div>

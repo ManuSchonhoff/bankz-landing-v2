@@ -1,4 +1,45 @@
-# Bankz · Video de marca (Remotion)
+# Bankz · Video de marca v2 (Remotion + three.js)
+
+Versión 2 del brief (30/09/2026): una sola toma continua en 3D. El punto se abre en un anillo, el anillo se vuelve túnel, el túnel es la bóveda de 999 frentes, al fondo está la puerta, la puerta es el isotipo, el isotipo es un radar, el radar es un dial, el dial es la cerradura de una caja y la pregunta vuelve al punto del principio. Es la versión principal: `Bankz16x9` y `Bankz9x16`. La v1 quedó como `V1-*`.
+
+```bash
+export REMOTION_CHROME=/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell
+npx remotion render Bankz16x9 out/bankz-v2-16x9.mp4 --codec=h264 --crf=15 --pixel-format=yuv420p --gl=swangle --concurrency=4
+npx remotion render Bankz9x16 out/bankz-v2-9x16.mp4 --codec=h264 --crf=15 --pixel-format=yuv420p --gl=swangle --concurrency=4
+npx remotion still Bankz16x9 out/placa-final-v2-16x9.png --frame=920 --gl=swangle
+REMOTION_GL=swangle node scripts/stills.mjs Bankz16x9 192,312,384,576   # stills de revisión
+python3 scripts/make_typeface.py      # Alexandria 400/500 -> typeface.json para el texto 3D
+cd scripts && python3 make_audio_v2.py # pista v2 (build, corte f192, drop f312) + whoosh y clicks de dial
+```
+
+En este contenedor no hay GPU: WebGL corre por software (`--gl=swangle`). Con GPU se puede usar `--gl=angle`.
+
+## Cómo está hecho
+
+| Archivo | Qué hace |
+|---|---|
+| `src/v2/world.ts` | Corredor en metros: 12 arcos, 999 frentes en 16 módulos (480/240/192/78/9), puerta, frente protagonista |
+| `src/v2/camera.ts` | Cámara 3D por keyframes de beat y cámara 2D compartida: el mismo zoom/paneo/golpe se aplica al 3D con `setViewOffset` (sin perder resolución) y a la capa HTML con CSS |
+| `src/v2/Scene3D.tsx` | Escena three.js: líneas con grosor real (`Line2`), niebla del color del fondo, radar → dial, frente que crece, módulo. Motion blur de cámara por acumulación de 14 muestras (shutter 180°) en los vuelos |
+| `src/v2/overlay/` | Capa HTML/SVG: tecleo, "?" → anillo → garrotes → isotipo → logotipo, frases del radar, odómetro, anillo → cursor, contactos |
+| `src/scenes/05-Cierre.tsx` | El cierre es el de la v1, parametrizado con los tiempos de la v2 |
+| `src/v2/iso-geometry.json` | Los 16 garrotes y el círculo del isotipo oficial, medidos del SVG del kit |
+
+## Decisiones tomadas donde el brief no alcanzaba o se contradecía
+
+1. **16 garrotes, no 12.** El isotipo oficial tiene 16 garrotes (8 largos y 8 cortos). El anillo de la puerta se parte en 16 para que el cruce con el archivo oficial (f318) sea invisible. Los garrotes animados son los trazados oficiales.
+2. **Frames de B29 en adelante.** La sección 4 usa f696 para B29, pero B29 empieza en f672. Se respetaron los frames de la sección 4 (placa final en f888, como dice el checklist): los tamaños cambian en f600, f624, f648 y f672 y el retiro es en f696.
+3. **Tecleo del número.** A 12 car/s no se puede empezar en f744 y terminar en f768. Se mantuvieron los 12 car/s: el anillo se aplasta en el cursor en f731, el tecleo va de f734 a f789 y parpadea una vez. "bankz.ar" llega en f792 y "@bankzarg" en f816, como pide el brief.
+4. **Radar.** El barrido da 1,25 vueltas por beat (no 1): así en cada beat (B18–B21) apunta a un cuadrante distinto y revela una frase en su lugar.
+5. **Frases de seguridad.** Van en HTML anclado a puntos 3D del radar, en lugar de texto 3D, para respetar los cuerpos en px del brief (48/44) y que no queden deformadas por la perspectiva.
+6. **Logotipo vertical.** Sigue sin estar en el repo, y los PDF "vertical" de Drive son solo el isotipo. El drop y la placa 9:16 usan el horizontal.
+7. **9:16.** El centro de la toma está en y = 880 (centro de la zona segura). El set del dial se mira desde más lejos para que las palabras entren.
+8. **Niebla:** del color del fondo, como opacidad por distancia (lo permite el brief). Si Manuel la considera fuera de manual, se reemplaza por escalones de opacidad.
+
+
+---
+
+# v1 · Video de marca (Remotion)
 
 Video de 16 s a 60 fps y 150 BPM, en 16:9 y 9:16, hecho según el brief "Bankz · Video de marca en motion graphics" (v1, 29/09/2026). Es un solo plano continuo: se teclea "¿Estás seguro?", la música se corta y en el drop la marca responde. Cierra con "Estás seguro.".
 
