@@ -3,3 +3,4 @@ out/loop
 out/review
 out/chunks
 out/*.log
+__pycache__
