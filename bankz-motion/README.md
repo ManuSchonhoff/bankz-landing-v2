@@ -1,10 +1,11 @@
 # Bankz · Promo "desde $54.000" (Remotion + three.js)
 
-12 s, solo 16:9 (`Promo54-16x9`), 100 % 2D. El punto del loop se abre en "Tu Caja de Seguridad" (centrado) y la cámara lo atraviesa. El mundo se invierte a blanco con "desde / $54.000 / por mes". Después vuelve al negro, se teclea "Alta solo con tu DNI" y cierra la placa: logotipo, "Estás seguro." y contacto. El último frame es igual al primero.
+12 s, 16:9 (`Promo54-16x9`) y 9:16 (`Promo54-9x16`), 100 % 2D. En 9:16 todo va dentro de la zona segura (x 72-936, y 260-1500). El punto del loop se abre en "Tu Caja de Seguridad" (centrado) y la cámara lo atraviesa. El mundo se invierte a blanco con "desde / $54.000 / por mes". Después vuelve al negro, se teclea "Alta solo con tu DNI" y cierra la placa: logotipo, "Estás seguro." y contacto. El último frame es igual al primero.
 
 ```bash
 export REMOTION_CHROME=/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
 npx remotion render Promo54-16x9 out/bankz-promo-54000-16x9.mp4 --codec=h264 --crf=15 --pixel-format=yuv420p --concurrency=4
+npx remotion render Promo54-9x16 out/bankz-promo-54000-9x16.mp4 --codec=h264 --crf=15 --pixel-format=yuv420p --concurrency=4
 cd scripts && python3 make_audio_promo.py   # pista: build, silencio en B6, drop en el precio (f144)
 ```
 
