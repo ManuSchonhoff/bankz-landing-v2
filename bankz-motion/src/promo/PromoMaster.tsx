@@ -8,10 +8,9 @@ import {BASE_K, fit, GLYPH, measure} from '../text';
 import {charFrame, typedCount} from '../timing';
 import {NEGRO} from '../theme';
 import {Aspect, EVP, themeP} from './model';
-import {Wall3D} from './Wall3D';
 
 // Copy (letra por letra, el que paso Manuel) + placa de marca con contacto canonico.
-const T1 = ['Tu Caja', 'de Seguridad'];
+const T1 = 'Tu Caja de Seguridad';
 const DESDE = 'desde';
 const PRICE = '$54.000';
 const POR_MES = 'por mes';
@@ -38,9 +37,8 @@ const dniCaretX = (f: number) => {
 const SCALE: [number, number][] = [
   [0, 1],
   [24, 1.02],
-  [48, 1],
-  [96, 1],
-  [128, 1.03],
+  [36, 1],
+  [128, 1.05],
   [144, 1],
   [240, 1.03],
   [288, 1],
@@ -72,24 +70,24 @@ const Overlay: React.FC = () => {
   const {ink, brand} = themeP(f);
   const els: React.ReactNode[] = [];
 
-  // B1: el punto de 4 px (es la cerradura de tu caja; en B2 la toma el 3D).
+  // B1: el punto de 4 px que late; en B2 se abre en la frase.
   if (f < 30) {
     const s = (1 + 0.6 * Math.sin(Math.PI * prog(f, 0, 6))) * (1 - prog(f, 24, 4));
     if (s > 0.01) els.push(<div key="dot" style={{position: 'absolute', left: 960 - 2 * s, top: 540 - 2 * s, width: 4 * s, height: 4 * s, borderRadius: '50%', background: ink}} />);
   }
 
-  // B5: "Tu Caja de Seguridad". En B6½ la camara se mete en la caja y el texto pasa por los costados.
-  if (f >= 96 && f < 144) {
+  // B2: el punto se abre en "Tu Caja de Seguridad", centrado. En B6½ la camara lo atraviesa hacia el precio.
+  if (f >= 26 && f < 144) {
     const fly = eIn(prog(f, 128, 16));
-    T1.forEach((line, i) => {
-      const e = enter(f, 96 + i * 6, 8, 14);
-      els.push(
-        <Txt key={`t${i}`} x={120} y={430 + i * 136} size={128} color={ink} align="left" opacity={e.opacity * (1 - fly)} blur={Math.max(e.blur, 16 * fly)} dy={16 * (1 - e.e)} scale={1 + 1.6 * fly}>
-          {line}
-        </Txt>,
-      );
-    });
+    const S = fit(T1, 128, 500, MAXW);
+    const e = enter(f, 26, 9, 16);
+    els.push(
+      <Txt key="t1" x={960} y={540} size={S} color={ink} opacity={e.opacity * (1 - fly)} blur={Math.max(e.blur, 16 * fly)} scale={(1.08 - 0.08 * e.e) * (1 + 1.6 * fly)}>
+        {T1}
+      </Txt>,
+    );
   }
+
 
   // B7: inversion. "desde" / "$54.000" / "por mes".
   if (f >= EVP.drop && f < EVP.back) {
@@ -193,8 +191,7 @@ const Overlay: React.FC = () => {
 type Cue = {at: number; file: string; volume: number};
 const CUES: Cue[] = (() => {
   const c: Cue[] = [
-    {at: 28, file: 'tick', volume: 0.6},
-    {at: 96, file: 'tick', volume: 0.7},
+    {at: 26, file: 'tick', volume: 0.7},
     {at: 128, file: 'whoosh', volume: 0.6},
     {at: 144, file: 'thud', volume: 0.45},
     {at: 144, file: 'clack', volume: 0.45},
@@ -224,13 +221,12 @@ export const PromoAudio: React.FC = () => (
   </>
 );
 
-export const PromoMaster: React.FC<{aspect: Aspect}> = ({aspect}) => {
+export const PromoMaster: React.FC<{aspect: Aspect}> = () => {
   const ready = useFonts();
   const f = useCurrentFrame();
   if (!ready) return <AbsoluteFill style={{background: NEGRO}} />;
   return (
     <AbsoluteFill style={{background: themeP(f).bg, overflow: 'hidden'}}>
-      {f < EVP.drop ? <Wall3D aspect={aspect} /> : null}
       <Overlay />
       <PromoAudio />
     </AbsoluteFill>
